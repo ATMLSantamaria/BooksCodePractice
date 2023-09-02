@@ -51,7 +51,7 @@ struct TypeAt<TypeList<Head, Tail>, i>
 
 ////////                           INDEX OF               
 template<class TList, class T> 
-struct IndexOf{};
+struct IndexOf;
 
 //If TList is NullType
 template<class T>
