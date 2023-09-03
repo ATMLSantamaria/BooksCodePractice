@@ -92,3 +92,21 @@ struct Erase<TypeList<Head,Tail>,T>
 {
     typedef TypeList<Head, typename Erase<Tail,T>::Result> Result;
 };
+
+///                  REPLACE
+
+template<class TList,class T, class U> struct Replace;
+template<class T,class U>
+struct Replace<NullType,T,U>{
+    typedef NullType Result;
+};
+template<class Tail,class T,class U>
+struct Replace<TypeList<T,Tail>,T,U>
+{
+    typedef TypeList<U,Tail> Result;
+};
+template<class Head,class Tail,class T,class U>
+struct Replace<TypeList<Head,Tail>,T,U>
+{
+    typedef TypeList<Head,typename Replace<Tail,T,U>::Result> Result;
+};
