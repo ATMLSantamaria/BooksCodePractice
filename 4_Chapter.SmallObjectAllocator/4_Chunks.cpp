@@ -9,6 +9,7 @@
 
 struct Chunk
 {
+    // friend class FixedAllocator; //Necessary so FixedAllocator can access blocks avail? not sure
     void Init(std::size_t blockSize,unsigned char blocks);
     void * Allocate(std::size_t blockSize);
     void Deallocate(void *p,std::size_t blockSize);
