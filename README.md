@@ -1,6 +1,6 @@
 # C++ ModernDesign. Code And Exercises
 
-This repository contains the pieces of software I studied and made experiment I did based in the famous C++ Modern Design book by Andrei Alexandrescu.
+This repository contains the pieces of software I studied and practiced using the famous C++ Modern Design book by Andrei Alexandrescu.
 
 All comments are my notes about the information contained in that book.
 
