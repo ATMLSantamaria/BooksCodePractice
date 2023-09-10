@@ -123,10 +123,14 @@ double result = myFunctor(4, 5.6);
 
 
 
-
+// Now that the necessary scaffolding is in place, we're ready to start defining concrete classes derived from
+// FunctorImpl .
 
 
 
 int main(){
+
+
+
 
 }
