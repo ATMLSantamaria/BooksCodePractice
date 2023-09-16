@@ -95,7 +95,7 @@ class Functor
 
     //Constructor that takes any functor object
     template<typename Fun>
-    Functor(const Fun& fun);
+    Functor(const Fun & fun);
 
     template <class PtrObj, typename MemFn>
     Functor(const PtrObj& p, MemFn memFn);
@@ -195,7 +195,7 @@ class FunctorHandler : public FunctorImpl <typename ParentFunctor::ResultType, t
     public:
     typedef typename ParentFunctor::ResultType ResultType;
 
-    FunctorHandler(const Fun & fun):fun_(fun){}
+    FunctorHandler(const Fun & fun):f_(fun){}
 
     FunctorHandler * Clone() const { //clone this Functor handler
         return new FunctorHandler(*this); //2 functor handlers point to same function (or in this case to the same functor). With function this is logical since you want to have handlers
@@ -203,28 +203,28 @@ class FunctorHandler : public FunctorImpl <typename ParentFunctor::ResultType, t
     }
 
     ResultType operator()(){
-        return fun_(); //call the operator() of the Functor
+        return f_(); //call the operator() of the Functor
     }
     ResultType operator()(typename ParentFunctor::Parm1 p1){
-        return fun_(p1); //call the operator() of the Functor
+        return f_(p1); //call the operator() of the Functor
     }
     ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2){
-        return fun_(p1,p2); 
+        return f_(p1,p2); 
     }
     ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3){
-        return fun_(p1,p2,p3); 
+        return f_(p1,p2,p3); 
     }
     ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3,typename ParentFunctor::Parm4 p4){
-        return fun_(p1,p2,p3,p4); 
+        return f_(p1,p2,p3,p4); 
     }
     ResultType operator()(typename ParentFunctor::Parm1 p1,
                             typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3,
                             typename ParentFunctor::Parm4 p4,typename ParentFunctor::Parm5 p5){
-        return fun_(p1,p2,p3,p4,p5); 
+        return f_(p1,p2,p3,p4,p5); 
     }
 
     private:
-    Fun fun_;
+    Fun f_;
 };
 
 // FunctorHandler looks much like Functor itself: It forwards requests to a stored member variable.
