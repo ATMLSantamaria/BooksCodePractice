@@ -33,6 +33,9 @@ class FunctorImpl;
 template <class ParentFunctor,typename Fun>
 class FunctorHandler;
 
+template<class ParentFunctor,typename PointerToObj,typename PointerToMemberFn>
+class MemberFuncHandler; 
+
 
 
 template <typename R,class TList>
@@ -69,6 +72,15 @@ class Functor
     R operator()(Parm1 p1 ,Parm2 p2){
         return (*_spImpl)(p1,p2);
     }
+    R operator()(Parm1 p1 ,Parm2 p2,Parm3 p3){
+        return (*_spImpl)(p1,p2,p3);
+    }
+    R operator()(Parm1 p1 ,Parm2 p2,Parm3 p3,Parm4 p4){
+        return (*_spImpl)(p1,p2,p3,p4);
+    }
+    R operator()(Parm1 p1 ,Parm2 p2,Parm3 p3,Parm4 p4,Parm5 p5){
+        return (*_spImpl)(p1,p2,p3,p4,p5);
+    }
 
 
     private:
@@ -84,6 +96,9 @@ class Functor
     //Constructor that takes any functor object
     template<typename Fun>
     Functor(const Fun& fun);
+
+    template <class PtrObj, typename MemFn>
+    Functor(const PtrObj& p, MemFn memFn);
 };
 
 
@@ -99,6 +114,12 @@ Functor<R,TList>::Functor(const Fun & fun):_spImpl(new FunctorHandler<Functor,Fu
 // class member template definition."
 
 
+
+template<typename R,class TList>
+template <class PtrObj, typename MemFn>
+Functor<R,TList>::Functor(const PtrObj& p, MemFn memFn)
+: _spImpl(new MemberFuncHandler<Functor, PtrObj, MemFn>(p, memFn))
+{}
 
 
 
@@ -141,6 +162,24 @@ class FunctorImpl<R,LOKI_TYPELIST_3(P1,P2,P3)>
     virtual ~FunctorImpl(){}
 };
 
+template<typename R, typename P1, typename P2,typename P3,typename P4>
+class FunctorImpl<R,LOKI_TYPELIST_4(P1,P2,P3,P4)>
+{
+    public:
+    virtual R operator()(P1,P2,P3,P4)=0;
+    virtual FunctorImpl * Clone()const = 0;
+    virtual ~FunctorImpl(){}
+};
+
+template<typename R, typename P1, typename P2,typename P3,typename P4,typename P5>
+class FunctorImpl<R,LOKI_TYPELIST_5(P1,P2,P3,P4,P5)>
+{
+    public:
+    virtual R operator()(P1,P2,P3,P4,P5)=0;
+    virtual FunctorImpl * Clone()const = 0;
+    virtual ~FunctorImpl(){}
+};
+
 
 // To implement this constructor we need a simple class template FunctorHandler derived from
 // FunctorImpl<R, TList> . That class stores an object of type Fun and forwards operator() to it.
@@ -175,6 +214,14 @@ class FunctorHandler : public FunctorImpl <typename ParentFunctor::ResultType, t
     ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3){
         return fun_(p1,p2,p3); 
     }
+    ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3,typename ParentFunctor::Parm4 p4){
+        return fun_(p1,p2,p3,p4); 
+    }
+    ResultType operator()(typename ParentFunctor::Parm1 p1,
+                            typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3,
+                            typename ParentFunctor::Parm4 p4,typename ParentFunctor::Parm5 p5){
+        return fun_(p1,p2,p3,p4,p5); 
+    }
 
     private:
     Fun fun_;
@@ -184,8 +231,53 @@ class FunctorHandler : public FunctorImpl <typename ParentFunctor::ResultType, t
 // The main difference is that the functor is stored by value, not by pointer. This is because, in general,
 // functors are meant to be this way—nonpolymorphic types with regular copy semantics.
 
+////////////////////////////////////////////////////////////////////////////////
+// class template FunctorHandler
+// Wraps pointers to member functions
+///////////////////////////////////////////////////////////////////////
+template<class ParentFunctor,typename PointerToObj,typename PointerToMemberFn>
+class MemberFuncHandler : public FunctorImpl<typename ParentFunctor::ResultType,typename ParentFunctor::ParmList>
+{
+    public:
+        typedef typename ParentFunctor::ResultType ResultType;
+        MemberFuncHandler(const PointerToObj &pObj, const PointerToMemberFn & pMemFn ):pObj_(pObj_),pMemFn_(pMemFn)
+        {
 
-
+        }
+        MemberFuncHandler * Clone() const
+        {
+            return new MemberFuncHandler(*this);
+        } 
+        ResultType operator()()
+        {
+            return ((*pObj_).*pMemFn_)();
+        }
+        ResultType operator()(typename ParentFunctor::Parm1 p1)
+        {
+            return ((*pObj_).*pMemFn_)(p1);
+        }
+        ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2)
+        {
+            return ((*pObj_).*pMemFn_)(p1,p2);
+        }
+        ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3)
+        {
+            return ((*pObj_).*pMemFn_)(p1,p2,p3);
+        }
+        ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,
+                                typename ParentFunctor::Parm3 p3,typename ParentFunctor::Parm4 p4)
+        {
+            return ((*pObj_).*pMemFn_)(p1,p2,p3,p4);
+        }
+        ResultType operator()(typename ParentFunctor::Parm1 p1,typename ParentFunctor::Parm2 p2,typename ParentFunctor::Parm3 p3,
+                                typename ParentFunctor::Parm4 p4,typename ParentFunctor::Parm5 p5)
+        {
+            return ((*pObj_).*pMemFn_)(p1,p2,p3,p4,p5);
+        }
+    private:
+        PointerToObj pObj_;
+        PointerToMemberFn pMemFn_; 
+};
 
 // int main(){
 
